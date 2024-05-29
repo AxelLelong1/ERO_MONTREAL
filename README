@@ -1,0 +1,14 @@
+<span style="color:red">TODO</span>
+<span style="color:green">DONE</span>
+- <span style="color:red">Python [OSMnx: Python for Street Networks](https://geoffboeing.com/2016/11/osmnx-python-street-networks/)
+    - <span style="color:green">Installation
+    - <span style="color:red">OSMnx
+        - <span style="color:green">OSMnx First graph
+        - <span style="color:red">Graph weights
+        - <span style="color:red">Add Snow factor to each segment of the graph (random, defined ? could do both ?)
+    - <span style="color:green">Other
+        -<span style="color:green">Save System
+- <span style="color:red"> Drone Analysis
+- <span style="color:red">Vehicule Analysis
+- <span style="color:red">PDF (Overleaf ?)
+- <span style="color:red">README
