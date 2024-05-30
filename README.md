@@ -4,7 +4,7 @@
     - <span style="color:green">Installation
     - <span style="color:red">OSMnx
         - <span style="color:green">OSMnx First graph
-        - <span style="color:red">Graph weights
+        - <span style="color:yellow">Graph weights
         - <span style="color:red">Add Snow factor to each segment of the graph (random, defined ? could do both ?)
     - <span style="color:green">Other
         -<span style="color:green">Save System
