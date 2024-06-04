@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: UTF8 -*-
 import osmnx as ox
 import networkx as nx
 import matplotlib.pyplot as plt

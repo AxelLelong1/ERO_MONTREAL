@@ -45,28 +45,52 @@ def get_edge_color(snow_depth):
 
 def Show_Snow(G):
 
-    #G = add_snow_depth(G)
-
-    #G = ox.convert.to_undirected(G)
-    #G = to_eularian(G)
-
-    #eularian_cycle = list(nx.eulerian_circuit(G))
-    #eularian_edges = [(u,v) for u,v in eularian_cycle]
-
     pos = {node: (data['x'], data['y']) for node, data in G.nodes(data=True)}
 
     fig, ax = plt.subplots(figsize=(100,100))
 
     nx.draw(G, pos, ax=ax, node_size=8, node_color='gray', edge_color='lightgray', with_labels=False)
 
-    for u, v in G.edges():
+    for u, v, key, data in G.edges(keys=True, data=True):
         x1, y1 = pos[u]
         x2, y2 = pos[v]
         snow_depth = G[u][v][0]['snow_depth']
         edge_color = get_edge_color(snow_depth)
+        if ('demi-tour' in data):
+            edge_color = 'red'
         ax.plot([x1, x2], [y1, y2], color=edge_color, linewidth=2)
     
     plt.show()
+
+def handle_one_way_streets(G):
+    # Identifier les nœuds avec un degré sortant de 0
+    impasses = [node for node in G.nodes() if G.out_degree(node) == 0]
+
+    for node in impasses:
+        current_node = node
+        while True:
+            # Trouver le prédécesseur
+            predecessors = list(G.predecessors(current_node))
+            if not predecessors:
+                break  # Si pas de prédécesseur, arrêter
+            predecessor = predecessors[0]
+            
+            # Copier les attributs de l'arête existante
+            edge_data = G.get_edge_data(predecessor, current_node)
+            if edge_data:
+                data = edge_data[0]  # Prendre les attributs de la première arête trouvée
+
+                # Ajouter l'arête inverse si nécessaire
+                if G.out_degree(predecessor) > 1:
+                    data['demi-tour'] = 1
+                    G.add_edge(current_node, predecessor, **data)
+                    break
+                else:
+                    data['demi-tour'] = 1
+                    G.add_edge(current_node, predecessor, **data)
+                    current_node = predecessor
+    
+    return G
 
 def Show_Deneig_Circuit(G):
     # Remove streets with to much snow
@@ -76,43 +100,6 @@ def Show_Deneig_Circuit(G):
             to_suppr.append((u,v))
     for u,v in to_suppr:
         G.remove_edge(u,v)
-    #Calculate The eularian graph
-    
-    """G = to_eularian(G)
-    eularian_cycle = list(nx.eulerian_circuit(G))
-    eularian_edges = [(u,v) for u,v in eularian_cycle]
-
-    pos = {node: (data['x'], data['y']) for node, data in G.nodes(data=True)}
-
-    fig, ax = plt.subplots(figsize=(100,100))
-
-    nx.draw(G, pos, ax=ax, node_size=8, node_color='gray', edge_color='lightgray', with_labels=False)
-    node_passage = {node: 0 for node in G.nodes()}
-
-    # Draw the Eulerian cycle edges with colors based on snow depth
-
-    for idx, (u, v) in enumerate(eularian_cycle):
-
-        if idx <= 10:
-            textcolor = 'red'
-        elif idx <= 50:
-            textcolor = 'coral'
-        elif idx <= 100:
-            textcolor = 'chocolate'
-        elif idx <= 500:
-            textcolor = 'orange'
-        elif idx <= 1000:
-            textcolor = 'yellow'
-        elif idx <= 2000:
-            textcolor = 'lawngreen'
-        else:
-            textcolor = 'darkgreen'
-        x,y = pos[u]
-        offset = node_passage[u] * 10
-        ax.annotate(str(idx), xy=(x,y), textcoords='offset points', xytext=(offset,offset + 10), ha='center', fontsize=8, color=textcolor)
-        node_passage[u] += 1
-
-    plt.show()"""
 
 
 G = (ox.load_graphml(filepath="./data/Outremont.graphml"))
@@ -121,24 +108,42 @@ G = add_snow_depth(G)
 Show_Snow(G)
 Show_Deneig_Circuit(G)
 Show_Snow(G)
+handle_one_way_streets(G)
+Show_Snow(G)
 
 
-"""G = (ox.load_graphml(filepath="./data/Verdun.graphml"))
+G = (ox.load_graphml(filepath="./data/Verdun.graphml"))
 #ShowGraph(G)
 G = add_snow_depth(G)
+Show_Snow(G)
 Show_Deneig_Circuit(G)
+Show_Snow(G)
+handle_one_way_streets(G)
+Show_Snow(G)
 
 G = (ox.load_graphml(filepath="./data/Anjou.graphml"))
 #ShowGraph(G)
 G = add_snow_depth(G)
+Show_Snow(G)
 Show_Deneig_Circuit(G)
+Show_Snow(G)
+handle_one_way_streets(G)
+Show_Snow(G)
 
 G = (ox.load_graphml(filepath="./data/Riviere.graphml"))
 #ShowGraph(G)
 G = add_snow_depth(G)
+Show_Snow(G)
 Show_Deneig_Circuit(G)
+Show_Snow(G)
+handle_one_way_streets(G)
+Show_Snow(G)
 
 G = (ox.load_graphml(filepath="./data/Plateau.graphml"))
 #ShowGraph(G)
 G = add_snow_depth(G)
-Show_Deneig_Circuit(G)"""
+Show_Snow(G)
+Show_Deneig_Circuit(G)
+Show_Snow(G)
+handle_one_way_streets(G)
+Show_Snow(G)
