@@ -28,10 +28,11 @@ def add_snow_depth(G):
     np.random.seed(42)  # for reproducibility
     for u, v, key, data in G.edges(keys=True, data=True):
         data['snow_depth'] = np.random.uniform(0, 30)
+    return G
 
 def get_edge_color(snow_depth):
     if snow_depth <= 2.5:
-        return 'white'
+        return 'lightgray'
     elif snow_depth <= 5:
         return 'lightblue'
     elif snow_depth <= 10:
@@ -41,12 +42,34 @@ def get_edge_color(snow_depth):
     else:
         return 'red'
 
+
+def Show_Snow(G):
+
+    G = add_snow_depth(G)
+
+    G = ox.convert.to_undirected(G)
+    G = to_eularian(G)
+
+    eularian_cycle = list(nx.eulerian_circuit(G))
+    eularian_edges = [(u,v) for u,v in eularian_cycle]
+
+    pos = {node: (data['x'], data['y']) for node, data in G.nodes(data=True)}
+
+    fig, ax = plt.subplots(figsize=(100,100))
+
+    nx.draw(G, pos, ax=ax, node_size=8, node_color='gray', edge_color='lightgray', with_labels=False)
+
+    for u, v in eularian_edges:
+        x1, y1 = pos[u]
+        x2, y2 = pos[v]
+        snow_depth = G[u][v][0]['snow_depth']
+        edge_color = get_edge_color(snow_depth)
+        ax.plot([x1, x2], [y1, y2], color=edge_color, linewidth=2)
+
 def Show_Drone_Circuit(G):
     #Calculate The eularian graph
     G = ox.convert.to_undirected(G)
     G = to_eularian(G)
-
-    add_snow_depth(G)
 
     eularian_cycle = list(nx.eulerian_circuit(G))
     eularian_edges = [(u,v) for u,v in eularian_cycle]
@@ -59,12 +82,6 @@ def Show_Drone_Circuit(G):
     node_passage = {node: 0 for node in G.nodes()}
 
     # Draw the Eulerian cycle edges with colors based on snow depth
-    for u, v in eularian_edges:
-        x1, y1 = pos[u]
-        x2, y2 = pos[v]
-        snow_depth = G[u][v]['snow_depth']
-        edge_color = get_edge_color(snow_depth)
-        ax.plot([x1, x2], [y1, y2], color=edge_color, linewidth=2)
 
     for idx, (u, v) in enumerate(eularian_cycle):
         
@@ -93,6 +110,7 @@ def Show_Drone_Circuit(G):
 G = (ox.convert.to_undirected(ox.load_graphml(filepath="./data/Outremont.graphml")))
 #ShowGraph(G)
 G = ox.convert.to_undirected(G)
+Show_Snow(G)
 Show_Drone_Circuit(G)
 
 G = (ox.convert.to_undirected(ox.load_graphml(filepath="./data/Verdun.graphml")))
