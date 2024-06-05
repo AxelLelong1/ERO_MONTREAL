@@ -1,5 +1,6 @@
 import osmnx as ox
 import numpy as np
+import networkx as nx
 
 def find_next_snow(G, current):
     pile = []
@@ -20,5 +21,16 @@ def find_next_snow(G, current):
             if succ['marque'] is None:
                 succ['marque'] = 1
                 pile.append(succ)
+    return None
 
-    return null
+def find_largest_scc(G):
+    # Compute the strongly connected components
+    sccs = list(nx.strongly_connected_components(G))
+    
+    # Find the largest strongly connected component
+    largest_scc = max(sccs, key=len)
+    
+    # Create a subgraph of the largest strongly connected component
+    largest_scc_subgraph = G.subgraph(largest_scc).copy()
+    
+    return largest_scc_subgraph

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from eularian import *
+from utils import *
 
 def ShowGraph(G, show_lenght=True):
     # Définir une figure et un axe pour le graphe
@@ -56,8 +57,8 @@ def Show_Snow(G):
         x2, y2 = pos[v]
         snow_depth = G[u][v][0]['snow_depth']
         edge_color = get_edge_color(snow_depth)
-        if ('demi-tour' in data):
-            edge_color = 'red'
+        #if ('demi-tour' in data):
+        #    edge_color = 'red'
         ax.plot([x1, x2], [y1, y2], color=edge_color, linewidth=2)
     
     plt.show()
@@ -71,6 +72,7 @@ def handle_one_way_streets(G):
         while True:
             # Trouver le prédécesseur
             predecessors = list(G.predecessors(current_node))
+            # Maybe prendre le predec. le moins couteux
             if not predecessors:
                 break  # Si pas de prédécesseur, arrêter
             predecessor = predecessors[0]
@@ -92,26 +94,73 @@ def handle_one_way_streets(G):
     
     return G
 
+def find_next_snow(G, current):
+    path = []
+
+
 def Show_Deneig_Circuit(G):
     # Remove streets with to much snow
     to_suppr = []
+    total_snow = 0
+    distance = 0
+    total_path = []
     for u, v, key, data in G.edges(keys=True, data=True):
         if data['snow_depth'] >= 15 :
             to_suppr.append((u,v))
     for u,v in to_suppr:
         G.remove_edge(u,v)
+    G = handle_one_way_streets(G)
+    G = find_largest_scc(G)
+    #Show_Snow(G)
+
+    for u, v, key, data in G.edges(keys=True, data=True):
+        if data['snow_depth'] >= 2.5 :
+            total_snow += data['snow_depth']
+
+    current = list(G.nodes)[0]
+    while total_snow != 0:
+        total_path.append(current)
+        find_an_edge = False
+        sucs = list(G.successors(current))
+        for suc in sucs:
+            data = G.get_edge_data(current, suc)[0]
+            if data['snow_depth'] >= 2.5:
+                total_snow -= data['snow_depth']
+                data['snow_depth'] = 0
+                distance += data['length']
+                current = suc
+                find_an_edge = True
+                break
+        if not find_an_edge:
+            target = find_next_snow(G, current)
+            path = list(nx.shortest_path(G, source=current, target=target, weight='length'))
+            path.pop(0)
+            print(path)
+            i = 0
+            for n in path:
+                print(i, current, n)
+                data = G.get_edge_data(current, n)
+                distance += data['length']
+                current = n
+                total_path.append(n)
+                i+=1
+            total_path.pop()
+
+    return distance, total_path, G
+            
+
+
+
 
 
 G = (ox.load_graphml(filepath="./data/Outremont.graphml"))
 #ShowGraph(G)
 G = add_snow_depth(G)
 Show_Snow(G)
-Show_Deneig_Circuit(G)
-Show_Snow(G)
-handle_one_way_streets(G)
+distance, total_path, G = Show_Deneig_Circuit(G)
 Show_Snow(G)
 
-
+"""
 G = (ox.load_graphml(filepath="./data/Verdun.graphml"))
 #ShowGraph(G)
 G = add_snow_depth(G)
@@ -147,3 +196,4 @@ Show_Deneig_Circuit(G)
 Show_Snow(G)
 handle_one_way_streets(G)
 Show_Snow(G)
+"""
