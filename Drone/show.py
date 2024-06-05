@@ -69,7 +69,7 @@ def Show_Snow(G):
 
 
 def Calculate_Snow(G):
-
+    cycle_length = 0
     OrSnowGraph = G
     G = add_snow_depth(G)
 
@@ -84,6 +84,8 @@ def Calculate_Snow(G):
         snow_depth = None
         # Access all keys and find snow_depth
         for key, data in G.get_edge_data(u, v).items():
+            if 'length' in data:
+                cycle_length += data['length']
             if 'snow_depth' in data:
                 snow_depth = data['snow_depth']
                 break
@@ -96,7 +98,7 @@ def Calculate_Snow(G):
                 elif ((i,j) == (v,u)):
                     d['snow_depth'] = snow_depth
     
-    return G,OrSnowGraph
+    return G,OrSnowGraph, cycle_length
 
 def Show_Drone_Circuit(G):
 
@@ -136,38 +138,65 @@ def Show_Drone_Circuit(G):
 
     plt.show()
 
-
+"""
 G = (ox.load_graphml(filepath="./data/Outremont.graphml"))
 ox.plot_graph(G)
-S,OrSnowGraph = Calculate_Snow(G)
+S,OrSnowGraph, cycle_length = Calculate_Snow(G)
+print("cycle_length = ", cycle_length)
+temps = (cycle_length / 20) / 3600
+cout = cycle_length * 0.00001
+print("Coût Drone = ", cout)
+print("Temps Drone en heure = ", temps)
 Show_Snow(OrSnowGraph)
 ox.plot_graph(OrSnowGraph)
 #Show_Drone_Circuit(S)
 
 G = (ox.load_graphml(filepath="./data/Verdun.graphml"))
 ox.plot_graph(G)
-S,OrSnowGraph = Calculate_Snow(G)
+S,OrSnowGraph, cycle_length = Calculate_Snow(G)
+print("cycle_length = ", cycle_length)
+temps = (cycle_length / 20) / 3600
+cout = cycle_length * 0.00001
+print("Coût Drone = ", cout)
+print("Temps Drone en heure = ", temps)
 Show_Snow(OrSnowGraph)
 ox.plot_graph(OrSnowGraph)
 #Show_Drone_Circuit(S)
 
 G = (ox.load_graphml(filepath="./data/Anjou.graphml"))
 ox.plot_graph(G)
-S,OrSnowGraph = Calculate_Snow(G)
+S,OrSnowGraph, cycle_length = Calculate_Snow(G)
+print("cycle_length = ", cycle_length)
+temps = (cycle_length / 20) / 3600
+cout = cycle_length * 0.00001
+print("Coût Drone = ", cout)
+print("Temps Drone en heure = ", temps)
 Show_Snow(OrSnowGraph)
 ox.plot_graph(OrSnowGraph)
 #Show_Drone_Circuit(S)
-
-G = (ox.load_graphml(filepath="./data/Riviere.graphml"))
+"""
+G = (ox.load_graphml(filepath="./data/Montreal, Canada.graphml"))
 ox.plot_graph(G)
-S,OrSnowGraph = Calculate_Snow(G)
+S,OrSnowGraph, cycle_length = Calculate_Snow(G)
+print("cycle_length = ", cycle_length)
+temps = (cycle_length / 20) / 3600
+cout = cycle_length * 0.00001
+print("Coût Drone = ", cout)
+print("Temps Drone en heure = ", temps)
 Show_Snow(OrSnowGraph)
 ox.plot_graph(OrSnowGraph)
 #Show_Drone_Circuit(S)
 
+"""
 G = (ox.load_graphml(filepath="./data/Plateau.graphml"))
 ox.plot_graph(G)
-S,OrSnowGraph = Calculate_Snow(G)
+S,OrSnowGraph, cycle_length = Calculate_Snow(G)
+print("cycle_length = ", cycle_length)
+temps = (cycle_length / 20) / 3600
+cout = cycle_length * 0.00001
+print("Coût Drone = ", cout)
+print("Temps Drone en heure = ", temps)
 Show_Snow(OrSnowGraph)
 ox.plot_graph(OrSnowGraph)
 #Show_Drone_Circuit(S)
+"""

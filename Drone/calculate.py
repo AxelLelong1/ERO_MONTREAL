@@ -11,9 +11,11 @@ start=datetime.now()
 def calculate_graph(Ville):
     G = ox.graph_from_place(Ville, "drive")
     G = ox.distance.add_edge_lengths(G)
-    ox.io.save_graph_geopackage(G, filepath="./data/Outremont.gpkg") #save geopackages
-    ox.io.save_graphml(G, filepath="./data/Outremont.graphml") # read graph
+    ox.io.save_graph_geopackage(G, filepath="./data/" + Ville + ".gpkg") #save geopackages
+    ox.io.save_graphml(G, filepath="./data/" + Ville + ".graphml") # read graph
 
+calculate_graph('Montreal, Canada')
+### ---------------------------------------------------------------------------------------------------------------------- ###
 calculate_graph('Outremont, Canada')
 ### ---------------------------------------------------------------------------------------------------------------------- ###
 calculate_graph('Verdun, Canada')
