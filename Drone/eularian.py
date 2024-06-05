@@ -67,7 +67,6 @@ def to_eulerian(G):
     return G
 """
 
-
 def to_eulerian(G):
     # Find all nodes with an odd degree
     odd_nodes = [v for v in G.nodes() if G.degree(v) % 2 != 0]
