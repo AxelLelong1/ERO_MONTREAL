@@ -4,6 +4,11 @@ import networkx as nx
 import numpy as np
 from eularian import *
 
+def convert(G):
+    G = ox.convert.to_undirected(G)
+    return to_eulerian(G)
+
+
 def ShowGraph(G, show_lenght=True):
     # Définir une figure et un axe pour le graphe
     fig, ax = plt.subplots(figsize=(100, 100))
@@ -67,14 +72,27 @@ def Show_Snow(G):
         edge_color = get_edge_color(snow_depth)
         ax.plot([x1, x2], [y1, y2], color=edge_color, linewidth=2)
 
-
-def Calculate_Snow(G):
+def Calculate_Lenght(G):
     cycle_length = 0
-    OrSnowGraph = G
+
+    eularian_cycle = list(nx.eulerian_circuit(G))
+    eularian_edges = [(u,v) for u,v in eularian_cycle]
+
+    for u, v in eularian_edges:
+        snow_depth = None
+        # Access all keys and find snow_depth
+        for key, data in G.get_edge_data(u, v).items():
+            if 'length' in data:
+                cycle_length += data['length']
+    
+    return cycle_length
+
+def Calculate_Snow(G, OrSnowGraph):
+    """OrSnowGraph = G
     G = add_snow_depth(G)
 
     G = ox.convert.to_undirected(G)
-    G = to_eularian(G)
+    G = to_eularian(G)"""
 
     eularian_cycle = list(nx.eulerian_circuit(G))
     eularian_edges = [(u,v) for u,v in eularian_cycle]
@@ -84,8 +102,6 @@ def Calculate_Snow(G):
         snow_depth = None
         # Access all keys and find snow_depth
         for key, data in G.get_edge_data(u, v).items():
-            if 'length' in data:
-                cycle_length += data['length']
             if 'snow_depth' in data:
                 snow_depth = data['snow_depth']
                 break
@@ -98,12 +114,9 @@ def Calculate_Snow(G):
                 elif ((i,j) == (v,u)):
                     d['snow_depth'] = snow_depth
     
-    return G,OrSnowGraph, cycle_length
+    return G, OrSnowGraph
 
 def Show_Drone_Circuit(G):
-
-    #G = ox.convert.to_undirected(G)
-    G = to_eularian(G)
 
     eularian_cycle = list(nx.eulerian_circuit(G))
     eularian_edges = [(u,v) for u,v in eularian_cycle]
@@ -138,19 +151,26 @@ def Show_Drone_Circuit(G):
 
     plt.show()
 
-"""
+
+
 G = (ox.load_graphml(filepath="./data/Outremont.graphml"))
 ox.plot_graph(G)
-S,OrSnowGraph, cycle_length = Calculate_Snow(G)
+H = convert(G)
+H = add_snow_depth(H)
+H, G = Calculate_Snow(H, G)
+cycle_length = Calculate_Lenght(H)
+
 print("cycle_length = ", cycle_length)
 temps = (cycle_length / 20) / 3600
 cout = cycle_length * 0.00001
 print("Coût Drone = ", cout)
 print("Temps Drone en heure = ", temps)
-Show_Snow(OrSnowGraph)
-ox.plot_graph(OrSnowGraph)
+
+Show_Snow(G)
+ox.plot_graph(G)
 #Show_Drone_Circuit(S)
 
+"""
 G = (ox.load_graphml(filepath="./data/Verdun.graphml"))
 ox.plot_graph(G)
 S,OrSnowGraph, cycle_length = Calculate_Snow(G)
@@ -175,16 +195,21 @@ Show_Snow(OrSnowGraph)
 ox.plot_graph(OrSnowGraph)
 #Show_Drone_Circuit(S)
 """
-G = (ox.load_graphml(filepath="./data/Montreal, Canada.graphml"))
-ox.plot_graph(G)
-S,OrSnowGraph, cycle_length = Calculate_Snow(G)
+G = (ox.load_graphml(filepath="./data/Montreal.graphml"))
+#ox.plot_graph(G)
+#S,OrSnowGraph = Calculate_Snow(G)
+
+H = convert(G)
+ox.io.save_graphml(H, filepath="./data/" + "Montreal-E" + ".graphml") # read graph
+#H = (ox.load_graphml(filepath="./data/Montreal-E.graphml"))
+cycle_length = Calculate_Lenght(H)
+
 print("cycle_length = ", cycle_length)
 temps = (cycle_length / 20) / 3600
 cout = cycle_length * 0.00001
 print("Coût Drone = ", cout)
 print("Temps Drone en heure = ", temps)
-Show_Snow(OrSnowGraph)
-ox.plot_graph(OrSnowGraph)
+
 #Show_Drone_Circuit(S)
 
 """
