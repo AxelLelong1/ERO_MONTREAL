@@ -13,6 +13,7 @@ start=datetime.now()
 def calculate_graph(Ville):
     G = ox.graph_from_place(Ville + ', Canada', "drive")
     G = ox.distance.add_edge_lengths(G)
+    print("There are " ,len(G.nodes), " nodes in " + Ville + ".")
     ox.io.save_graph_geopackage(G, filepath="./data/" + Ville + ".gpkg") #save geopackages
     ox.io.save_graphml(G, filepath="./data/" + Ville + ".graphml") # read graph
 
@@ -22,8 +23,14 @@ def calculate_eulerian(Ville):
     H = convert(G)
     ox.io.save_graphml(H, filepath="./data/" + Ville +"-E.graphml")
 
-
+semi=datetime.now()
 calculate_graph('Montreal')
+print("Done extracting Montreal in ", datetime.now()-semi)
+
+
+semi=datetime.now()
+calculate_eulerian('Montreal')
+print("Done calculating Eulerian Montreal in ", datetime.now()-semi)
 ### ---------------------------------------------------------------------------------------------------------------------- ###
 semi=datetime.now()
 calculate_graph('Outremont')
