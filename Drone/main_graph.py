@@ -19,7 +19,7 @@ Show_Snow(G)
 ox.plot_graph(G)
 #Show_Drone_Circuit(S)
 
-
+"""
 G = (ox.load_graphml(filepath="./data/Verdun.graphml"))
 ox.plot_graph(G)
 H = convert(G)
@@ -54,6 +54,7 @@ Show_Snow(G)
 ox.plot_graph(G)
 #Show_Drone_Circuit(S)
 """
+"""
 G = (ox.load_graphml(filepath="./data/Montreal.graphml"))
 #ox.plot_graph(G)
 #S,OrSnowGraph = Calculate_Snow(G)
@@ -71,7 +72,7 @@ print("Temps Drone en heure = ", temps)
 
 #Show_Drone_Circuit(S)
 
-"""
+
 
 G = (ox.load_graphml(filepath="./data/Le Plateau-Mont-Royal.graphml"))
 ox.plot_graph(G)
@@ -106,3 +107,4 @@ print("Temps Drone en heure = ", temps)
 Show_Snow(G)
 ox.plot_graph(G)
 #Show_Drone_Circuit(S)
+"""

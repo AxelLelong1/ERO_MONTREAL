@@ -1,6 +1,7 @@
 import osmnx as ox
 import numpy as np
 import networkx as nx
+import heapq
 
 def find_next_snow(G, current):
     pile = []
@@ -12,15 +13,14 @@ def find_next_snow(G, current):
         node = pile.pop(0)
 
         edges = G.out_edges(node, data=True)
-
         for u, v, data in edges:
             if data['snow_depth'] >= 2.5: #seuil de déneigement
                 return u
  
-        for succ in G.successors(node):
-            if succ['marque'] is None:
-                succ['marque'] = 1
-                pile.append(succ)
+        for u, v, data in edges:#G.successors(node):
+            if G.nodes[v].get('marque', None) is None:
+                G.nodes[v]['marque'] = 1
+                pile.append(v)
     return None
 
 def find_largest_scc(G):

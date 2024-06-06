@@ -28,7 +28,11 @@ def ShowGraph(G, show_lenght=True):
 def add_snow_depth(G):
     np.random.seed(42)  # for reproducibility
     for u, v, key, data in G.edges(keys=True, data=True):
-        data['snow_depth'] = np.random.uniform(0, 20)
+        if 'snow_depth' not in data:
+            data['snow_depth'] = np.random.uniform(0, 15)
+            if G.has_edge(v,u):
+                data1 = G.get_edge_data(v, u)[0]
+                data1['snow_depth'] = data['snow_depth']
     return G
 
 def get_edge_color(snow_depth):
@@ -44,7 +48,7 @@ def get_edge_color(snow_depth):
         return 'red'
 
 
-def Show_Snow(G):
+def Show_Snow(G, path = None):
 
     pos = {node: (data['x'], data['y']) for node, data in G.nodes(data=True)}
 
@@ -94,9 +98,6 @@ def handle_one_way_streets(G):
     
     return G
 
-def find_next_snow(G, current):
-    path = []
-
 
 def Show_Deneig_Circuit(G):
     # Remove streets with to much snow
@@ -111,7 +112,7 @@ def Show_Deneig_Circuit(G):
         G.remove_edge(u,v)
     G = handle_one_way_streets(G)
     G = find_largest_scc(G)
-    #Show_Snow(G)
+    Show_Snow(G)
 
     for u, v, key, data in G.edges(keys=True, data=True):
         if data['snow_depth'] >= 2.5 :
@@ -123,62 +124,162 @@ def Show_Deneig_Circuit(G):
         find_an_edge = False
         sucs = list(G.successors(current))
         for suc in sucs:
-            data = G.get_edge_data(current, suc)[0]
-            if data['snow_depth'] >= 2.5:
-                total_snow -= data['snow_depth']
-                data['snow_depth'] = 0
-                distance += data['length']
+            data1 = G.get_edge_data(current, suc)[0]
+            if data1['snow_depth'] >= 2.5:
+                total_snow -= data1['snow_depth']
+                data1['snow_depth'] = 0
+                if G.has_edge(suc, current):
+                    data2 = G.get_edge_data(suc, current)[0]
+                    total_snow -= data2['snow_depth']
+                    data2['snow_depth'] = 0
+                distance += data1['length']
                 current = suc
                 find_an_edge = True
                 break
         if not find_an_edge:
             target = find_next_snow(G, current)
-            path = list(nx.shortest_path(G, source=current, target=target, weight='length'))
+            if target is None:
+                return distance, total_path, G
+            path = nx.shortest_path(G, source=current, target=target, weight='length')
             path.pop(0)
-            print(path)
-            i = 0
-            for n in path:
-                print(i, current, n)
-                data = G.get_edge_data(current, n)
-                distance += data['length']
-                current = n
-                total_path.append(n)
-                i+=1
+            for j in range(len(path)):
+                data = G.get_edge_data(current, path[j])
+                sudatat = data[0]
+                distance += sudatat['length']
+                current = path[j]
+                total_path.append(path[j])
             total_path.pop()
 
     return distance, total_path, G
+
+def deneiger(G):
+    to_suppr = []
+    for u, v, key, data in G.edges(keys=True, data=True):
+        if data['snow_depth'] >= 15 :
+            to_suppr.append((u,v))
+    for u,v in to_suppr:
+        G.remove_edge(u,v)
+    G = handle_one_way_streets(G)
+    G = find_largest_scc(G)
+    #G = handle_one_way_streets(G)
+    Show_Snow(G)
+    total_snow = sum(data['snow_depth'] for u, v, data in G.edges(data=True) if data['snow_depth'] >= 2.5)
+    print(f"Total initial de neige à déneiger: {total_snow:.2f}")
+
+    current = list(G.nodes)[0]  # Commencer à un nœud arbitraire
+    total_path = []
+    distance = 0
+
+    while total_snow > 0:
+        total_path.append(current)
+        find_an_edge = False
+
+        for suc in G.successors(current):
+            data = G.get_edge_data(current, suc)[0]
+            if data['snow_depth'] >= 2.5:
+                total_snow -= data['snow_depth']
+                print()
+                print(data['snow_depth'])
+                data['snow_depth'] = 0
+                if G.has_edge(suc, current):
+                    data2 = G.get_edge_data(suc, current)[0]
+                    print(data2['snow_depth'])
+                    total_snow -= data2['snow_depth']
+                    data2['snow_depth'] = 0
+                distance += data['length']
+                print()
+                current = suc
+                find_an_edge = True
+                break
+        
+        if not find_an_edge:
+            # Si aucune arête à déneiger n'a été trouvée, trouver le prochain nœud avec de la neige à déneiger
+            target = None
+            for node in G.nodes:
+                if node != current:
+                    for suc in G.successors(node):
+                        data = G.get_edge_data(node, suc)[0]
+                        if data['snow_depth'] >= 2.5:
+                            target = node
+                            break
+                if target is not None:
+                    break
+            
+            if target is None:
+                print("Aucune arête restante à déneiger.")
+                break
+            
+            path = nx.shortest_path(G, source=current, target=target, weight='length')
+            path.pop(0)  # Enlever le nœud courant du début du chemin
+            total_path.extend(path)
+            current = target
+        print(f"Total final de neige à déneiger: {total_snow:.2f}")
+    return distance, total_path, G
             
 
+def Show_Vehicule_Circuit(G, path):
+
+    pos = {node: (data['x'], data['y']) for node, data in G.nodes(data=True)}
+
+    fig, ax = plt.subplots(figsize=(100,100))
+
+    nx.draw(G, pos, ax=ax, node_size=8, node_color='gray', edge_color='lightgray', with_labels=False)
+    node_passage = {node: 0 for node in G.nodes()}
+
+    for idx, node in enumerate(path):
+        
+        if idx <= 10:
+            textcolor = 'red'
+        elif idx <= 50:
+            textcolor = 'coral'
+        elif idx <= 100:
+            textcolor = 'chocolate'
+        elif idx <= 500:
+            textcolor = 'orange'
+        elif idx <= 1000:
+            textcolor = 'yellow'
+        elif idx <= 2000:
+            textcolor = 'lawngreen'
+        else:
+            textcolor = 'darkgreen'
+        
+        x,y = pos[node]
+        offset = node_passage[node] * 10
+        ax.annotate(str(idx), xy=(x,y), textcoords='offset points', xytext=(offset,offset + 10), ha='center', fontsize=8, color=textcolor)
+        node_passage[node] += 1
+
+    plt.show()
 
 
-
-
+"""
 G = (ox.load_graphml(filepath="./data/Outremont.graphml"))
 #ShowGraph(G)
 G = add_snow_depth(G)
 Show_Snow(G)
-distance, total_path, G = Show_Deneig_Circuit(G)
+distance, total_path, G = deneiger(G)
+print("distance total = ", distance)
+Show_Vehicule_Circuit(G, total_path)
 Show_Snow(G)
 
-"""
+
 G = (ox.load_graphml(filepath="./data/Verdun.graphml"))
 #ShowGraph(G)
 G = add_snow_depth(G)
 Show_Snow(G)
-Show_Deneig_Circuit(G)
+distance, total_path, G = deneiger(G)
+print("distance total = ", distance)
+Show_Vehicule_Circuit(G, total_path)
 Show_Snow(G)
-handle_one_way_streets(G)
-Show_Snow(G)
-
+"""
 G = (ox.load_graphml(filepath="./data/Anjou.graphml"))
 #ShowGraph(G)
 G = add_snow_depth(G)
 Show_Snow(G)
-Show_Deneig_Circuit(G)
+distance, total_path, G = deneiger(G)
+print("distance total = ", distance)
+Show_Vehicule_Circuit(G, total_path)
 Show_Snow(G)
-handle_one_way_streets(G)
-Show_Snow(G)
-
+"""
 G = (ox.load_graphml(filepath="./data/Riviere.graphml"))
 #ShowGraph(G)
 G = add_snow_depth(G)
