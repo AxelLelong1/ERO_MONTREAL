@@ -1,6 +1,6 @@
 import osmnx as ox
 import numpy as np
-from eularian import *
+from Drone.eularian import *
 
 def convert(G):
     G = ox.convert.to_undirected(G)

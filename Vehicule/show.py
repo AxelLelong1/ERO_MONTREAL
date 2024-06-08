@@ -2,7 +2,7 @@ import osmnx as ox
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-from utils import *
+from Vehicule.utils import *
 
 def ShowGraph(G, show_lenght=True):
     # Définir une figure et un axe pour le graphe
@@ -300,7 +300,7 @@ print("Coût Déneigeuses total = ", cout)
 print("Temps Déneigeuse total en heure = ", temps)
 print("distance totale = ", distance)
 
-"""
+
 G = (ox.load_graphml(filepath="./data/Plateau.graphml"))
 G = add_snow_depth(G)
 G = handle_one_way_streets(G)
@@ -313,3 +313,4 @@ Show_Snow(G)
 print("Coût Déneigeuses total = ", cout)
 print("Temps Déneigeuse total en heure = ", temps)
 print("distance totale = ", distance)
+"""

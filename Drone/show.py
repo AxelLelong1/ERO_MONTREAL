@@ -2,7 +2,7 @@ import osmnx as ox
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-from graph_utils import *
+from Drone.graph_utils import *
 
 def ShowGraph(G, show_lenght=True):
     # Définir une figure et un axe pour le graphe
