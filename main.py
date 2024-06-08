@@ -18,8 +18,8 @@ def main():
     
     res = int(res) - 1
     city = ["Outremont", "Verdun", "Anjou", "Le Plateau-Mont-Royal", "Rivière-des-prairies-pointe-aux-trembles"]
-    Type1 = [0, 1, 11, 29, 10]
-    Type2 = [2, 2, 1, 2, 0]
+    Type1 = [0, 1, 11, 10, 29]
+    Type2 = [2, 2, 1, 0, 2]
     
     print("Getting graph of ", city[res])
 
