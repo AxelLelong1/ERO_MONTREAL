@@ -24,7 +24,7 @@ def ShowGraph(G, show_lenght=True):
     # Afficher la figure
     plt.show()
 
-def add_snow_depth(G):
+"""def add_snow_depth(G):
     np.random.seed(42)  # for reproducibility
     for u, v, key, data in G.edges(keys=True, data=True):
         if 'snow_depth' not in data:
@@ -32,7 +32,7 @@ def add_snow_depth(G):
             if G.has_edge(v,u):
                 data1 = G.get_edge_data(v, u)[0]
                 data1['snow_depth'] = data['snow_depth']
-    return G
+    return G"""
 
 def get_edge_color(snow_depth):
     if snow_depth <= 2.5:

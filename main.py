@@ -45,6 +45,7 @@ def main():
     clusters = partitioning(G, Type1[res] + Type2[res], Type1[res], Type2[res])
 
     distance, temps, cout, G = calculs(clusters, G)
+    Show_clusters(clusters, G)
     Show_Snow(G)
 
     print("Coût Déneigeuses total = ", cout)
