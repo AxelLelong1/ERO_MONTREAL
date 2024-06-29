@@ -1,14 +1,16 @@
-<span style="color:red">TODO</span>
-<span style="color:green">DONE</span>
-- <span style="color:red">Python [OSMnx: Python for Street Networks](https://geoffboeing.com/2016/11/osmnx-python-street-networks/)
-    - <span style="color:green">Installation
-    - <span style="color:red">OSMnx
-        - <span style="color:green">OSMnx First graph
-        - <span style="color:yellow">Graph weights
-        - <span style="color:red">Add Snow factor to each segment of the graph (random, defined ? could do both ?)
-    - <span style="color:green">Other
-        -<span style="color:green">Save System
-- <span style="color:red"> Drone Analysis
-- <span style="color:red">Vehicule Analysis
-- <span style="color:red">PDF (Overleaf ?)
-- <span style="color:red">README
+# Libs needed :
+- OSMNX
+- MATPLOTLIB
+- SCIKIT-LEARN
+
+Make sure you have these python libraries installed before doing anything.
+
+# Adding maps
+If you need other maps than Montreal's, simply change the location in the `Drone/calculate.py`
+This might take a while because of the calculations done to the graph afterwards.
+
+# Running the simulation
+To run the simulation, simply open a terminal at the root of the project, and run `python3 main.py`
+
+Choose the location and the simulation will run...
+Might take a while when optimizing the graph...

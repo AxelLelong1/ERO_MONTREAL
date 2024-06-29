@@ -2,8 +2,7 @@ import osmnx as ox
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-from eularian import *
-from utils import *
+from Vehicule.utils import *
 
 def ShowGraph(G, show_lenght=True):
     # Définir une figure et un axe pour le graphe
@@ -25,7 +24,7 @@ def ShowGraph(G, show_lenght=True):
     # Afficher la figure
     plt.show()
 
-def add_snow_depth(G):
+"""def add_snow_depth(G):
     np.random.seed(42)  # for reproducibility
     for u, v, key, data in G.edges(keys=True, data=True):
         if 'snow_depth' not in data:
@@ -33,7 +32,7 @@ def add_snow_depth(G):
             if G.has_edge(v,u):
                 data1 = G.get_edge_data(v, u)[0]
                 data1['snow_depth'] = data['snow_depth']
-    return G
+    return G"""
 
 def get_edge_color(snow_depth):
     if snow_depth <= 2.5:
@@ -128,7 +127,6 @@ def deneiger(H, G, depart):
     distance += dist
     path.pop(0)  # Enlever le nœud courant du début du chemin
     total_path.extend(path)
-    print(total_snow)
     return distance, total_path, G
             
 
@@ -217,42 +215,46 @@ def Show_clusters(clusters, G):
         
     plt.show()
 
+def calculs(clusters, G):
+    distance = 0
+    cout = 0
+    temps = 0
+    graphs = []
+    depart = list(G.nodes)[0]
+    for graph, gros in clusters:
+        dist, total_path, H = deneiger(G, graph, depart)
+        graphs.append(H)
+        if (gros):
+            tmp = (dist / 5.56) / 3600
+            cout = cout + dist * 0.0013 + 800 + tmp * 1.3
+        else:
+            tmp = (dist / 2.78) / 3600
+            cout = cout + dist * 0.0011 + 500 + tmp * 1.1
+        if tmp > temps:
+            temps = tmp
+        distance += dist
+    global_graph = nx.compose_all(graphs)
+    for u, v, key, data1 in global_graph.edges(keys=True, data=True):
+        if (G.has_edge(u,v)):
+            data = G.get_edge_data(u, v)[0]
+            data['snow_depth'] = data1['snow_depth']
+    return distance, temps, cout, G
+
 
 """
 G = (ox.load_graphml(filepath="./data/Outremont.graphml"))
 G = add_snow_depth(G)
 G = handle_one_way_streets(G)
 G = find_largest_scc(G)
-clusters = partitioning(G, 3, 3, 0)
-#Show_clusters(clusters, G)
+clusters = partitioning(G, 2, 1, 1)
 
-distance = 0
-cout = 0
-temps = 0
-graphs = []
-depart = list(G.nodes)[0]
-for graph, gros in clusters:
-    dist, total_path, H = deneiger(G, graph, depart)
-    graphs.append(H)
-    if (gros):
-        tmp = (dist / 5.56) / 3600
-        cout += dist * 0.0013
-    else:
-        tmp = (dist / 2.78) / 3600
-        cout += dist * 0.0011
-    if tmp > temps:
-        temps = tmp
-    distance += dist
-global_graph = nx.compose_all(graphs)
-for u, v, key, data1 in global_graph.edges(keys=True, data=True):
-    if (G.has_edge(u,v)):
-        data = G.get_edge_data(u, v)[0]
-        data['snow_depth'] = data1['snow_depth']
-Show_Snow(G)
+distance, temps, cout, G = calculs(clusters, G)
+#Show_Snow(G)
+
 print("Coût Déneigeuses total = ", cout)
 print("Temps Déneigeuse total en heure = ", temps)
 print("distance totale = ", distance)
-"""
+
 
 
 G = (ox.load_graphml(filepath="./data/Verdun.graphml"))
@@ -261,77 +263,54 @@ G = handle_one_way_streets(G)
 G = find_largest_scc(G)
 clusters = partitioning(G, 3, 1, 2)
 
-distance = 0
-cout = 0
-temps = 0
-graphs = []
-depart = list(G.nodes)[0]
-for graph, gros in clusters:
-    dist, total_path, H = deneiger(G, graph, depart)
+distance, temps, cout, G = calculs(clusters, G)
+#Show_Snow(G)
 
-    graphs.append(H)
-    if (gros):
-        tmp = (dist / 5.56) / 3600
-        cout += dist * 0.0013
-    else:
-        tmp = (dist / 2.78) / 3600
-        cout += dist * 0.0011
-    if tmp > temps:
-        temps = tmp
-    distance += dist
-global_graph = nx.compose_all(graphs)
-for u, v, key, data1 in global_graph.edges(keys=True, data=True):
-    if (G.has_edge(u,v)):
-        data = G.get_edge_data(u, v)[0]
-        data['snow_depth'] = data1['snow_depth']
-Show_Snow(G)
 print("Coût Déneigeuses total = ", cout)
 print("Temps Déneigeuse total en heure = ", temps)
 print("distance totale = ", distance)
 
-"""
+
 G = (ox.load_graphml(filepath="./data/Anjou.graphml"))
-#ShowGraph(G)
 G = add_snow_depth(G)
-#Show_Snow(G)
-distance, total_path, G = deneiger(G)
-print("distance total = ", distance)
-#Show_Vehicule_Circuit(G, total_path)
-#Show_Snow(G)
-temps = (distance / 2.78) / 3600
-cout = distance * 0.0011
-print("Coût Déneigeuse Type1 = ", cout)
-print("Temps Déneigeuse Type1 en heure = ", temps)
-clusters = partitioning(G, 2, 1, 1)
-Show_clusters(clusters, G)
+G = handle_one_way_streets(G)
+G = find_largest_scc(G)
+clusters = partitioning(G, 8, 0, 8)
+
+
+distance, temps, cout, G = calculs(clusters, G)
+Show_Snow(G)
+
+print("Coût Déneigeuses total = ", cout)
+print("Temps Déneigeuse total en heure = ", temps)
+print("distance totale = ", distance)
+
+
 
 G = (ox.load_graphml(filepath="./data/Riviere.graphml"))
-#ShowGraph(G)
 G = add_snow_depth(G)
+G = handle_one_way_streets(G)
+G = find_largest_scc(G)
+clusters = partitioning(G, 3, 1, 2)
+
+distance, temps, cout, G = calculs(clusters, G)
 Show_Snow(G)
-distance, total_path, G = deneiger(G)
-print("distance total = ", distance)
-Show_Vehicule_Circuit(G, total_path)
-Show_Snow(G)
-temps = (distance / 2.78) / 3600
-cout = distance * 0.0011
-print("Coût Déneigeuse Type1 = ", cout)
-print("Temps Déneigeuse Type1 en heure = ", temps)
-clusters = k_medoids_partitioning(G, 4, 2, 2)
-print(len(clusters))
-Show_clusters(clusters, G)
+
+print("Coût Déneigeuses total = ", cout)
+print("Temps Déneigeuse total en heure = ", temps)
+print("distance totale = ", distance)
 
 
 G = (ox.load_graphml(filepath="./data/Plateau.graphml"))
-#ShowGraph(G)
 G = add_snow_depth(G)
+G = handle_one_way_streets(G)
+G = find_largest_scc(G)
+clusters = partitioning(G, 11, 7, 4)
+
+distance, temps, cout, G = calculs(clusters, G)
 Show_Snow(G)
-distance, total_path, G = deneiger(G)
-print("distance total = ", distance)
-Show_Vehicule_Circuit(G, total_path)
-Show_Snow(G)
-temps = (distance / 2.78) / 3600
-cout = distance * 0.0011
-print("Coût Déneigeuse Type1 = ", cout)
-print("Temps Déneigeuse Type1 en heure = ", temps)
+
+print("Coût Déneigeuses total = ", cout)
+print("Temps Déneigeuse total en heure = ", temps)
+print("distance totale = ", distance)
 """

@@ -1,6 +1,6 @@
 import osmnx as ox
 import numpy as np
-from eularian import *
+from Drone.eularian import *
 
 def convert(G):
     G = ox.convert.to_undirected(G)
@@ -9,7 +9,7 @@ def convert(G):
 def add_snow_depth(G):
     np.random.seed(42)  # for reproducibility
     for u, v, key, data in G.edges(keys=True, data=True):
-        data['snow_depth'] = np.random.uniform(0, 20)
+        data['snow_depth'] = np.random.uniform(0, 15)
     return G
 
 def get_edge_color(snow_depth):
